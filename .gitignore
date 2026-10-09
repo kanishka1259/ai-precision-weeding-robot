@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment / secrets
+.env
+
+# Datasets (large; keep out of git)
+datasets/
+data/
+*.zip
+
+# Training outputs
+runs/
+wandb/
+lightning_logs/
+*.log
+
+# Model weights (large; share via release or storage instead)
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.engine
+*.torchscript
+# Uncomment to track the final deployed model:
+# !crop_weed_yolo.pt
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
