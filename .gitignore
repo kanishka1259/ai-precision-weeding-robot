@@ -16,9 +16,12 @@ env/
 
 # Environment / secrets
 .env
+kaggle.json
 
 # Datasets (large; keep out of git)
 datasets/
+kaggle-dataset/
+outputs/
 data/
 *.zip
 

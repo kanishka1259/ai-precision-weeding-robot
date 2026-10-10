@@ -1,0 +1,7 @@
+ultralytics
+opencv-python
+numpy
+matplotlib
+pyyaml
+roboflow
+kagglehub
