@@ -3,12 +3,12 @@
 ## Academic acknowledgement
 
 - **Student Name(s) and Registration Number(s):**
-  - [Add Name] — CB.SC.U4CSE23430
-  - [Add Name] — CB.SC.U4CSE23318
-  - [Add Name] — CB.SC.U4CSE23336
-  - [Add Name] — CB.SC.U4CSE23328
-  - [Add Name] — CB.SC.U4CSE23609
-  - [Add Name] — CB.SC.U4CSE23611
+  - Manduva Jaswita — CB.SC.U4CSE23430
+  - Dungi Manvitha — CB.SC.U4CSE23318
+  - Marupuru Leela Mahalakshmi — CB.SC.U4CSE23336
+  - Kanishka S — CB.SC.U4CSE23328
+  - Bala Bharath Chandra Sai — CB.SC.U4CSE23609
+  - Chouduru Pranav Sharma — CB.SC.U4CSE23611
 - **Mentor:** Dr. A. Baskar
 - **Course:** 23CSE472 – Artificial Intelligence and Robotics
 - **Department:** Department of Computer Science and Engineering
