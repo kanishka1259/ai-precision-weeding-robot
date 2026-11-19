@@ -75,10 +75,55 @@ while True:
 
 This is the simplified listing from the review document. The `label` is not yet used to choose between the fertilizer and weedicide lines. That selection is part of the integration work still to do.
 
+## Robot Dashboard (Agri Vision AI)
+
+`rasp.py` is the on-robot Flask application that runs on the Raspberry Pi. It runs the ONNX crop/weed detector through OpenCV's DNN module (`best.onnx`, 416 px input, confidence 0.35, NMS 0.45), streams the annotated camera feed, drives the motors, reads the sensors and serves a single-file web dashboard.
+
+### Mission Control
+
+Live AI camera feed with crop and weed counts, ultrasonic obstacle distance, soil condition, manual/autonomous driving mode, drive buttons and live telemetry (motor state, path status, camera and model readiness).
+
+![Mission Control: live AI camera, detection counts, drive control and telemetry](docs/images/mission-control.jpeg)
+
+### Soil Intelligence
+
+Raw ADS1115 reading from the capacitive soil sensor, a provisional moisture percentage, a DRY / MOIST / WET class and a "Run soil check" action.
+
+![Soil Intelligence: ADS1115 moisture monitoring](docs/images/soil-intelligence.jpeg)
+
+### Watering Control
+
+Manual servo positioning (normal and soil-check positions), manual relay on/off and a timed soil-check sequence.
+
+![Watering Control: servo position, relay output and soil check sequence](docs/images/watering-control.jpeg)
+
+### Behaviour and safety rules in the code
+
+| Item | Behaviour |
+| :--- | :--- |
+| Obstacle guard | Any movement command is blocked when the ultrasonic distance is under 20 cm |
+| Autonomous mode | Prototype logic only: drive forward while a crop is detected, stop when there is no crop or an obstacle |
+| Soil check | Moves the probe servo, reads the soil sensor, and if the reading is dry runs the pump relay for 7 s per cycle, at most 3 cycles. The relay is always switched off at the end |
+| Soil calibration | `SOIL_DRY_ADC = 18000` and `SOIL_WET_ADC = 12000` are provisional. Calibrate in real dry and wet soil before relying on automatic watering |
+| Pump | Keep it disconnected during initial tests and verify relay polarity (`RELAY_ACTIVE_HIGH`) first |
+
+### BCM pin map (from `rasp.py`)
+
+| Function | BCM pin |
+| :--- | :-: |
+| Motor driver IN1 / IN2 / IN3 / IN4 | 23 / 24 / 27 / 22 |
+| Ultrasonic TRIG / ECHO | 5 / 6 |
+| Pump relay | 17 |
+| Servo | 12 |
+| Soil sensor | ADS1115 on I2C, channel A0 |
+
+Note: the copy of `rasp.py` in this repository ends part-way through the dashboard CSS (the Flask routes and `app.run` are missing), so it will not start as committed. Restore the full file from the Pi before running it.
+
 ## Setup
 
 ```bash
-pip install ultralytics opencv-python numpy matplotlib
+pip install -r requirements.txt
+# Dashboard on the Pi also needs Flask; the disease demo (app.py) needs streamlit, gdown, imageio, pillow
 # On the Raspberry Pi, also:
 pip install gpiozero RPi.GPIO adafruit-circuitpython-ads1x15
 ```
@@ -97,6 +142,20 @@ The command above is a starting template. `crop_weed.yaml` (dataset paths and th
 yolo detect predict model=crop_weed_yolo.pt source=0
 ```
 
+## Repository Contents
+
+| Path | Purpose |
+| :--- | :--- |
+| `rasp.py` | On-robot Flask app: camera, ONNX inference, motors, ultrasonic, soil sensor, servo, relay, dashboard |
+| `YOLOv8_plant_detection.ipynb` | Colab notebook: trains YOLOv8l (50 epochs, imgsz 224), validates and predicts on test images |
+| `config.py` | Shared paths and defaults (classes `crop` / `weed`, 70/20/10 split, image size 320, seed 42) |
+| `download_roboflow.py` | Downloads the Roboflow crop/weed dataset in YOLOv8 format. Needs `ROBOFLOW_API_KEY` in `.env` or the environment |
+| `05_export_benchmark.py` | Exports `best.pt` to ONNX / NCNN and benchmarks ms per image and FPS. Re-run it on the Pi for real numbers |
+| `app.py` | Separate Streamlit demo: plant-disease detection (10 classes such as Apple Scab and Tomato Leaf Mold) on uploaded images or videos. Weights are fetched from Google Drive using `st.secrets["GDRIVE_FILE_ID"]` |
+| `track.py` | Runs YOLO tracking on a local video (`apple.mp4`) with an OpenCV preview window |
+| `OP2_Robot_Casestudy/` | Separate MATLAB case study: ROBOTIS OP2 humanoid balance in a RoboCup match (see its own README) |
+| `docs/images/` | Dashboard screenshots used in this README |
+
 ## Status
 
 | Item | Status |
@@ -104,6 +163,7 @@ yolo detect predict model=crop_weed_yolo.pt source=0
 | Model comparison on the weed dataset | Done: YOLO selected (see above) |
 | YOLO crop/weed training | In progress |
 | Drive, sensing and spraying subsystems | Bench-tested individually |
+| Web dashboard (drive, soil, watering) | Working on the robot (see screenshots above) |
 | Full detect-aim-spray loop on the robot | Under integration and testing |
 
 No final accuracy or FPS figures are recorded yet.
